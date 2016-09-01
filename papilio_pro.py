@@ -6,7 +6,7 @@ from litex.gen import *
 from litex.gen.genlib.io import CRG
 
 from litex.gen.genlib.resetsync import AsyncResetSynchronizer
-from litex.boards.platforms import papilio_pro
+
 from litex.soc.interconnect import wishbone
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc_sdram import *
@@ -15,6 +15,8 @@ from litex.soc.cores.uart.bridge import UARTWishboneBridge
 
 from litedram.modules import MT48LC4M16
 from litedram.phy import GENSDRPHY
+
+import papilio_pro_platform as papilio_pro
 
 import sdcard
 
