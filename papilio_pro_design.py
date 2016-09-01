@@ -9,12 +9,8 @@ from litex.gen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.soc.interconnect import wishbone
 from litex.soc.integration.soc_core import *
-from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
 from litex.soc.cores.uart.bridge import UARTWishboneBridge
-
-from litedram.modules import MT48LC4M16
-from litedram.phy import GENSDRPHY
 
 import papilio_pro_platform as papilio_pro
 
@@ -62,41 +58,29 @@ class _CRG(Module):
                                      p_CLKOUT5_PHASE=270., p_CLKOUT5_DIVIDE=p//1,  # sys_ps
         )
         self.specials += Instance("BUFG", i_I=pll[4], o_O=self.cd_sys.clk)
-        self.specials += Instance("BUFG", i_I=pll[5], o_O=self.cd_sys_ps.clk)
         self.specials += AsyncResetSynchronizer(self.cd_sys, ~pll_lckd)
 
-        self.specials += Instance("ODDR2", p_DDR_ALIGNMENT="NONE",
-                                  p_INIT=0, p_SRTYPE="SYNC",
-                                  i_D0=0, i_D1=1, i_S=0, i_R=0, i_CE=1,
-                                  i_C0=self.cd_sys.clk, i_C1=~self.cd_sys.clk,
-                                  o_Q=platform.request("sdram_clock"))
 
-
-class BaseSoC(SoCSDRAM):
+class BaseSoC(SoCCore):
     mem_map = {
         "sdcard": 0x50000000,  # (shadow @0xd0000000)
     }
-    mem_map.update(SoCSDRAM.mem_map)
+    mem_map.update(SoCCore.mem_map)
 
     def __init__(self, **kwargs):
         platform = papilio_pro.Platform()
         clk_freq = 80*1000000
 
-        SoCSDRAM.__init__(self, platform, clk_freq,
+        SoCCore.__init__(self, platform, clk_freq,
                           cpu_type=None,
                           csr_data_width=32,
                           with_uart=False,
-                          ident="LitePCIe example design",
+                          ident="SDCard example design",
                           with_timer=False,
                           **kwargs)
+
         # clock/reset generation
         self.submodules.crg = _CRG(platform, clk_freq)
-
-        # sdram
-        self.submodules.sdrphy = GENSDRPHY(platform.request("sdram"))
-        sdram_module = MT48LC4M16(clk_freq, "1:1")
-        self.register_sdram(self.sdrphy,
-                            sdram_module.geom_settings, sdram_module.timing_settings)
 
         # uart <--> wishbone bridge
         self.add_cpu_or_bridge(UARTWishboneBridge(platform.request("serial"), clk_freq, baudrate=115200))
@@ -124,11 +108,11 @@ class BaseSoC(SoCSDRAM):
 def main():
     parser = argparse.ArgumentParser(description="MiSoC port to the Papilio Pro")
     builder_args(parser)
-    soc_sdram_args(parser)
+    soc_core_args(parser)
     args = parser.parse_args()
 
-    soc = BaseSoC(**soc_sdram_argdict(args))
-    builder = Builder(soc, output_dir="build", **builder_argdict(args))
+    soc = BaseSoC(**soc_core_argdict(args))
+    builder = Builder(soc, output_dir="build")
     builder.build()
 
 
