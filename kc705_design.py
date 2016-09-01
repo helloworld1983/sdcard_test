@@ -62,9 +62,11 @@ class BaseSoC(SoCCore):
 
     def __init__(self, **kwargs):
         platform = kc705.Platform(toolchain="vivado")
-        SoCCore.__init__(self, platform,
+        clk_freq = 625*100000
+
+        SoCCore.__init__(self, platform, clk_freq,
                           cpu_type=None,
-                          clk_freq=625*100000,
+                          csr_data_width=32,
                           with_uart=False,
                           ident="SDCard example design",
                           with_timer=False,
@@ -74,7 +76,7 @@ class BaseSoC(SoCCore):
         self.submodules.crg = _CRG(platform)
 
         # uart <--> wishbone bridge
-        self.add_cpu_or_bridge(UARTWishboneBridge(platform.request("serial"), self.clk_freq, baudrate=115200))
+        self.add_cpu_or_bridge(UARTWishboneBridge(platform.request("serial"), clk_freq, baudrate=115200))
         self.add_wb_master(self.cpu_or_bridge.wishbone)
 
         # sdcard
