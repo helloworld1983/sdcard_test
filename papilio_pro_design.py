@@ -128,7 +128,7 @@ def main():
     args = parser.parse_args()
 
     soc = BaseSoC(**soc_sdram_argdict(args))
-    builder = Builder(soc, **builder_argdict(args))
+    builder = Builder(soc, output_dir="build", **builder_argdict(args))
     builder.build()
 
 
