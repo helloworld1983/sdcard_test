@@ -38,8 +38,8 @@ class _CRG(Module):
                      p_CLKFBOUT_MULT=5, p_DIVCLK_DIVIDE=1,
                      i_CLKIN1=clk200_se, i_CLKFBIN=pll_fb, o_CLKFBOUT=pll_fb,
 
-                     # 62.5MHz
-                     p_CLKOUT0_DIVIDE=16, p_CLKOUT0_PHASE=0.0, o_CLKOUT0=self.pll_sys,
+                     # 125MHz
+                     p_CLKOUT0_DIVIDE=8, p_CLKOUT0_PHASE=0.0, o_CLKOUT0=self.pll_sys,
 
                      p_CLKOUT1_DIVIDE=8, p_CLKOUT1_PHASE=0.0, #o_CLKOUT1=,
 
@@ -62,7 +62,7 @@ class BaseSoC(SoCCore):
 
     def __init__(self, **kwargs):
         platform = kc705.Platform(toolchain="vivado")
-        clk_freq = 625*100000
+        clk_freq = 125*1000000
 
         SoCCore.__init__(self, platform, clk_freq,
                           cpu_type=None,
