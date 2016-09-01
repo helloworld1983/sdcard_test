@@ -12,6 +12,7 @@ from litex.soc.cores.uart.bridge import UARTWishboneBridge
 
 import kc705_platform as kc705
 
+import sdcard
 
 class _CRG(Module):
     def __init__(self, platform):
@@ -54,13 +55,10 @@ class _CRG(Module):
 
 
 class BaseSoC(SoCCore):
-    default_platform = "kc705"
-
-    csr_map = {
-        "spiflash": 16,
-        "ddrphy":   17,
+    mem_map = {
+        "sdcard": 0x50000000,  # (shadow @0xd0000000)
     }
-    csr_map.update(SoCCore.csr_map)
+    mem_map.update(SoCCore.mem_map)
 
     def __init__(self, **kwargs):
         platform = kc705.Platform(toolchain="vivado")
@@ -78,6 +76,13 @@ class BaseSoC(SoCCore):
         # uart <--> wishbone bridge
         self.add_cpu_or_bridge(UARTWishboneBridge(platform.request("serial"), self.clk_freq, baudrate=115200))
         self.add_wb_master(self.cpu_or_bridge.wishbone)
+
+        # sdcard
+        self.submodules.sdcard = sdcard.SDCARD(platform, platform.request("sd_card"))
+        self.add_wb_master(self.sdcard.master)
+
+        self.add_wb_slave(mem_decoder(self.mem_map["sdcard"]), self.sdcard.slave)
+        self.add_memory_region("sdcard", self.mem_map["sdcard"]+self.shadow_base, 0x2000)
 
         # led blink
         counter = Signal(32)
