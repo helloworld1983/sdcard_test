@@ -1,12 +1,6 @@
 #!/usr/bin/env python3
-
-
-
-
 import argparse
 from fractions import Fraction
-
-
 
 from litex.gen import *
 from litex.gen.genlib.io import CRG
@@ -21,6 +15,7 @@ from litex.soc.cores.uart.bridge import UARTWishboneBridge
 
 from litedram.modules import MT48LC4M16
 from litedram.phy import GENSDRPHY
+
 import sdcard
 
 
@@ -75,16 +70,12 @@ class _CRG(Module):
                                   o_Q=platform.request("sdram_clock"))
 
 
-
-                
-
 class BaseSoC(SoCSDRAM):
-#class BaseSoC(SoCCore):
     mem_map = {
         "sdcard": 0x50000000,  # (shadow @0xd0000000)
     }
     mem_map.update(SoCSDRAM.mem_map)
-         
+
     def __init__(self, **kwargs):
         platform = papilio_pro.Platform()
         clk_freq = 80*1000000
@@ -96,40 +87,37 @@ class BaseSoC(SoCSDRAM):
                           ident="LitePCIe example design",
                           with_timer=False,
                           **kwargs)
-        
-        
+        # clock/reset generation
+        self.submodules.crg = _CRG(platform, clk_freq)
+
+        # sdram
         self.submodules.sdrphy = GENSDRPHY(platform.request("sdram"))
         sdram_module = MT48LC4M16(clk_freq, "1:1")
-        self.register_sdram(self.sdrphy, 
+        self.register_sdram(self.sdrphy,
                             sdram_module.geom_settings, sdram_module.timing_settings)
-        
-        
-        self.submodules.crg = _CRG(platform, clk_freq)
-        
+
+        # uart <--> wishbone bridge
         self.add_cpu_or_bridge(UARTWishboneBridge(platform.request("serial"), clk_freq, baudrate=115200))
         self.add_wb_master(self.cpu_or_bridge.wishbone)
 
+        # sdcard
         self.submodules.sdcard = sdcard.SDCARD(platform, platform.request("sd_card"))
         self.add_wb_master(self.sdcard.master)
-        
+
         self.add_wb_slave(mem_decoder(self.mem_map["sdcard"]), self.sdcard.slave)
         self.add_memory_region("sdcard", self.mem_map["sdcard"]+self.shadow_base, 0x2000)
 
-        
-        
-                   
-        
+        # led blink
         counter = Signal(32)
         led = platform.request("user_led")
-        self.sync += If(counter, counter.eq(counter - 1)).Else(led.eq(~led), counter.eq(40000000))
-        
-        
-        
+        self.sync += \
+            If(counter,
+                counter.eq(counter - 1)
+            ).Else(
+                led.eq(~led),
+                counter.eq(40000000)
+        )
 
-        
-        
-        
-        
 
 def main():
     parser = argparse.ArgumentParser(description="MiSoC port to the Papilio Pro")
