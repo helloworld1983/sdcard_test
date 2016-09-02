@@ -62,7 +62,7 @@ class BaseSoC(SoCCore):
 
     def __init__(self, **kwargs):
         platform = kc705.Platform(toolchain="vivado")
-        clk_freq = 125*1000000
+        clk_freq = 625*100000
 
         SoCCore.__init__(self, platform, clk_freq,
                           cpu_type=None,
@@ -70,6 +70,7 @@ class BaseSoC(SoCCore):
                           with_uart=False,
                           ident="SDCard example design",
                           with_timer=False,
+                          integrated_main_ram_size=0x8000,
                           **kwargs)
 
         # clock/reset generation

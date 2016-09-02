@@ -77,6 +77,7 @@ class BaseSoC(SoCCore):
                           with_uart=False,
                           ident="SDCard example design",
                           with_timer=False,
+                          integrated_main_ram_size=0x8000,
                           **kwargs)
 
         # clock/reset generation
