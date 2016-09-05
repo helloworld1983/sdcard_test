@@ -62,7 +62,7 @@ unsigned int read32(struct sp_port *port, unsigned int address)
   buf[1] = 1;
 
   sp_blocking_write(port, buf, 2, 5000);
-  tmp = htonl(address);
+  tmp = htonl(address/4);
   memcpy(buf, &tmp, 4);
   sp_blocking_write(port, buf, 4, 5000);
 
@@ -86,7 +86,7 @@ void write32(struct sp_port *port, unsigned int address, unsigned int val)
   
   sp_blocking_write(port, buf, 2, 5000);
 
-  tmp = htonl(address);
+  tmp = htonl(address/4);
   printf("%08x\n", tmp);
   memcpy(buf, &tmp, 4);
   sp_blocking_write(port, buf, 4, 5000);
@@ -111,9 +111,8 @@ int main()
   //write32(port, 0x10000004, 0xcafebabe);
 
 
-  for(i = 0; i < 0x100; i+=4)
-    read32(port, 0x10000000 + i);
-
+  for(i = 0; i < 0x64; i+=4)
+    read32(port, 0x50000000+i);
   
 
 }

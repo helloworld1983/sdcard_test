@@ -149,7 +149,7 @@ unsigned int read32(struct sp_port *port, unsigned int address)
   buf[1] = 1;
 
   sp_blocking_write(port, buf, 2, 5000);
-  tmp = htonl(address);
+  tmp = htonl(address/4);
   memcpy(buf, &tmp, 4);
   sp_blocking_write(port, buf, 4, 5000);
 
@@ -179,7 +179,7 @@ void write32(struct sp_port *port, unsigned int address, uint32_t val)
   
   sp_blocking_write(port, buf, 2, 5000);
 
-  tmp = htonl(address);
+  tmp = htonl(address/4);
 
   memcpy(buf, &tmp, 4);
   sp_blocking_write(port, buf, 4, 5000);
@@ -195,17 +195,17 @@ void write32(struct sp_port *port, unsigned int address, uint32_t val)
 
 static inline uint32_t ocsdc_read(struct ocsdc *dev, int offset)
 {
-  return read32(dev->port, dev->iobase/4 + offset);
+  return read32(dev->port, dev->iobase + offset);
 }
 
 static inline void ocsdc_write(struct ocsdc *dev, int offset, uint32_t data)
 {
   int i;
-  write32(dev->port, dev->iobase/4 + offset, data);
+  write32(dev->port, dev->iobase + offset, data);
   printf("READ REGISTER after write %04x:%08x\n", offset, data);
 #if 0
   for(i = 0; i < 0x64; i+= 4)
-    read32(dev->port, dev->iobase/4 + i);
+    read32(dev->port, dev->iobase + i);
   printf("\n\n");
 #endif
 }
