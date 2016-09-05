@@ -26,17 +26,23 @@ class SDCARD(Module):
         self.specials += self.cmd.get_tristate(pads.cmd)
         self.specials += self.dat.get_tristate(pads.d)
 
+        master_adr_o = Signal(32)
+        slave_adr_i = Signal(32)
+
+        self.comb += [
+            self.master.adr.eq(master_adr_o[2:]),
+            slave_adr_i[2:].eq(self.slave.adr)
+
+        ]
+        
         self.comb += [
             self.cmd.o.eq(self.cmd_o),
             self.cmd.oe.eq(self.cmd_oe),
             self.cmd_i.eq(self.cmd.i),
 
             self.dat.o.eq(self.dat_o),
-            If(self.dat_oe,
-                self.dat.oe.eq(0xf)
-            ).Else(
-                self.dat.oe.eq(0x0)
-            ),
+            self.dat.oe.eq(self.dat_oe),
+            
             self.dat_i.eq(self.dat.i),
             pads.clk.eq(self.sd_clk)
         ]
@@ -50,17 +56,17 @@ class SDCARD(Module):
                             # Wishbone slave
                             i_wb_dat_i=slave.dat_w,
                             o_wb_dat_o=slave.dat_r,
-                            i_wb_adr_i=slave.adr,
+                            i_wb_adr_i=slave_adr_i,
                             i_wb_sel_i=slave.sel,
                             i_wb_we_i=slave.we,
                             i_wb_cyc_i=slave.cyc,
                             i_wb_stb_i=slave.stb,
                             o_wb_ack_o=slave.ack,
-
+                                  
                             # Wishbone master
                             o_m_wb_dat_o=master.dat_w,
                             i_m_wb_dat_i=master.dat_r,
-                            o_m_wb_adr_o=master.adr,
+                            o_m_wb_adr_o=master_adr_o,
                             o_m_wb_sel_o=master.sel,
                             o_m_wb_we_o=master.we,
                             o_m_wb_cyc_o=master.cyc,

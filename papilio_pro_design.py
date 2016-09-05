@@ -69,7 +69,7 @@ class BaseSoC(SoCCore):
 
     def __init__(self, **kwargs):
         platform = papilio_pro.Platform()
-        clk_freq = 80*1000000
+        clk_freq = 127*1000000
 
         SoCCore.__init__(self, platform, clk_freq,
                           cpu_type=None,

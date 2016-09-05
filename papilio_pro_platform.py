@@ -43,11 +43,11 @@ _io = [
     ),
 
     ("sd_card", 0,
-        Subsignal("cmd", Pins("P115"), Misc("PULLUP")),
+        Subsignal("cmd", Pins("P115"), Misc("PULLUP"), IOStandard("SDIO")),
         Subsignal("clk", Pins("P116")),
         Subsignal("cd", Pins("P120")),
-        Subsignal("d", Pins("P114 P119 P118 P117"), Misc("PULLUP")),
-        IOStandard("LVCMOS33"), Misc("SLEW=FAST")
+        Subsignal("d", Pins("P114 P119 P118 P117"), Misc("PULLUP"), IOStandard("SDIO")),
+        IOStandard("SDIO"), Misc("SLEW=FAST")
     )
 ]
 
