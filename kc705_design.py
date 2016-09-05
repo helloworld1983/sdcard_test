@@ -62,7 +62,7 @@ class BaseSoC(SoCCore):
 
     def __init__(self, **kwargs):
         platform = kc705.Platform(toolchain="vivado")
-        clk_freq = 625*100000
+        clk_freq = 125*1000000
 
         SoCCore.__init__(self, platform, clk_freq,
                           cpu_type=None,
