@@ -10,7 +10,7 @@ from litex.gen.genlib.resetsync import AsyncResetSynchronizer
 from litex.soc.interconnect import wishbone
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.builder import *
-from litex.soc.cores.uart.bridge import UARTWishboneBridge
+from litex.soc.cores.uart import UARTWishboneBridge
 
 import papilio_pro_platform as papilio_pro
 
